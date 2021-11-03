@@ -1,1 +1,352 @@
-/bin/
+package com.company;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Scanner;
+public class Main {
+    static Scanner scan = new Scanner(System.in);
+
+    static int ChoiceInput() {
+        System.out.println("Выберите способ работы с 							 программой.");
+        System.out.println("1 - ввод из консоли. 2 - ввод из 					 файла.");
+        int choice;
+        choice = 0;
+        boolean IsCorrect;
+        do {
+            IsCorrect = true;
+            try {
+                choice = Integer.parseInt(scan.nextLine());
+            }catch (Exception e) {
+                System.out.println("Данные введены некорректно. 						    Введите Цифру 1 или 2.");
+                IsCorrect = false;
+            }
+            if ((choice != 1 && choice != 2)) {
+                System.out.println("Данные введены некорректно. 						    Введите Цифру 1 или 2.");
+                IsCorrect = false;
+            }
+        } while (IsCorrect == false);
+        return choice;
+    }
+
+    static int ReturnMatrixSizeConsole() {
+        boolean IsCorrect;
+        int size;
+        size = 0;
+        System.out.println("Введите размер будущей матрицы это 					 целое число в интервале [2;10].");
+        do {
+            IsCorrect = true;
+            try {
+                size = Integer.parseInt(scan.nextLine());
+            }catch (Exception e) {
+                System.out.println("Данные введены некорректно, 						    размер будущей матрицы это 						    целое число в интервале 						    [2;10]. Повторите 							    ввод.");
+                IsCorrect = false;
+                size = 2;
+            }
+            if(size < 2 || size > 10) {
+                IsCorrect = false;
+                System.out.println("Число должно быть целым в 						   интервале [2;10]. 								   Повторите ввод.");
+            }
+        } while (IsCorrect == false);
+        return size;
+    }
+
+    static int ReturnCorrectNumberConsole() {
+        boolean IsCorrect;
+        int number;
+        number = 0;
+        do {
+            IsCorrect = true;
+            try {
+                number = Integer.parseInt(scan.next());
+            }catch (Exception e) {
+                System.out.println("Данные введены некорректно, 						    Элементы будущей матрицы 						    это целые числа в 							    интервале [-30,30]. 							    Повторите ввод.");
+                IsCorrect = false;
+                number = 2;
+            }
+            if (number < -30 || number > 30) {
+                IsCorrect = false;
+                System.out.println("Элементы будущей матрицы 						   это целые числа в интервале 						   [-30,30]. Повторите ввод.");
+            }
+        } while (IsCorrect == false);
+        return number;
+    }
+
+    static int[][] InputStartMatrixConsole(int size){
+        int[][] StartMatrix = new int[size][size];
+        for (int i = 0; i < size; i++) {
+            for (int g = 0; g < size; g++) {
+                StartMatrix[i][g] = 								    ReturnCorrectNumberConsole();
+            }
+        }
+        return StartMatrix;
+    }
+
+    static Boolean TryInputAmountFromFile(String way) {
+        File my_file = new File(way);
+        String text;
+        Boolean IsCorrect;
+        IsCorrect = true;
+        try (FileReader fr = new FileReader(way)) {
+            Scanner scan = new Scanner(fr);
+            if (scan.hasNextLine() == true) {
+                text = scan.nextLine();
+            }else {
+                IsCorrect = false;
+                System.out.println("Этот файл пустой. Введите 						   новый путь к файлу.");
+            }
+        }catch (IOException ex) {
+            IsCorrect = false;
+            System.out.println("Ошибка считавания из файла 						     введите путь к новому.");
+        }
+        return IsCorrect;
+    }
+
+    static String InputWayFile() throws Exception {
+        String InputWay;
+        boolean IsCorrect;
+        do {
+            IsCorrect = true;
+
+            InputWay = scan.nextLine();
+            if (Files.exists(Path.of(InputWay)) == false) {
+                IsCorrect = false;
+                System.out.println("Не удалось найти файл по 						   этому пути. 									   Повторите ввод.");
+            }
+            else {
+                IsCorrect = TryInputAmountFromFile(InputWay);
+            }
+
+        }while(IsCorrect == false);
+        return InputWay;
+    }
+
+    static String FindInputFile () throws Exception {
+        String InputWay;
+        boolean IsCorrect;
+        int amount;
+        do {
+            IsCorrect = true;
+            InputWay = InputWayFile();
+            IsCorrect = CheckAmount(InputWay);
+            if (IsCorrect == true) {
+                amount = InputAmount(InputWay);
+                IsCorrect = TryReadMatrixFromFile(InputWay, 			         amount);
+
+
+            }
+
+        }while(IsCorrect == false);
+        return InputWay;
+    }
+
+    static Boolean CheckAmount(String InputWay) throws Exception {
+        int amount;
+        amount = 0;
+        boolean IsCorrect;
+        String text;
+        FileReader fr = new FileReader(InputWay);
+        Scanner scan = new Scanner(fr);
+        text = scan.nextLine();
+        IsCorrect = true;
+        try {
+            amount = Integer.parseInt(text);
+        } catch (Exception e) {
+            System.out.println("Из файла считается число, это 					     должно быть целое число.");
+            System.out.println("Введите путь к новому файлу.");
+            IsCorrect = false;
+        }
+        if (IsCorrect == true) {
+            if (amount < 2 || amount > 20) {
+                System.out.println("Из файла считается размер 						   матрицы, это должно быть 						   целое число в 								   интервале[2,20].");
+                System.out.println("Введите путь к новому 							   файлу.");
+                IsCorrect = false;
+
+            }
+        }
+        return IsCorrect;
+    }
+    static int InputAmount(String InputWay) throws Exception {
+        String text;
+        int amount;
+        FileReader fr = new FileReader(InputWay);
+        Scanner scan = new Scanner(fr);
+        text = scan.nextLine();
+        amount = Integer.parseInt(text);
+        return amount;
+
+    }
+
+    static Boolean TryReadMatrixFromFile(String InPutWay, int amount) throws Exception {
+        int stet;
+        stet = 0;
+        int number;
+        number = -1;
+        boolean IsCorrect, FactorsInInterval;
+        FactorsInInterval = true;
+        Scanner fileReader = new Scanner (new File(InPutWay));
+        amount = amount * amount;
+        String text;
+        text = fileReader.nextLine();
+        IsCorrect = true;
+        while(fileReader.hasNext() == true && IsCorrect == 	 true) {
+            try {
+                number = fileReader.nextInt();
+            } catch(NumberFormatException e) {
+                IsCorrect = false;
+                System.out.println("Ошибка ввода элементов 							   матрицы.");
+            }
+            stet++;
+            if (number < -30 || number > 30) {
+                FactorsInInterval = false;
+            }
+        }
+        if (IsCorrect == true) {
+            if(stet  == amount && FactorsInInterval == true) {
+                IsCorrect = true;
+                System.out.println("Эти элементы по количеству 						   подходят в качестве 							   элементов будущей матрицы и 						   их значения также 								   подходят.");
+            }
+            else 
+if (stet  != amount && FactorsInInterval == 		         true){
+                IsCorrect = false;
+                System.out.println("В файле должно быть 							   значения для элементов  							   будущей матрицы, не больше 						   не меньше.");
+            }
+                else 
+if (stet  == amount && FactorsInInterval == 		   false) {
+                   IsCorrect = false;
+                   System.out.println("Элементы будущей 								 матрицы, есть целые 								 числа в интервале 								 [-30;30].");
+                }
+            else {
+                IsCorrect = false;
+                System.out.println("Эти элементы ни по 							   количеству, ни по значению 						   для будущей матрицы не 							   подходят.");
+            }
+        }
+        return IsCorrect;
+    }
+
+    static int[][] StartMatrix(int size, String way) throws Exception {
+        int[][] StartMatrix = new int[size][size];
+        int number;
+        FileReader fr= new FileReader(way);
+        Scanner scan = new Scanner(fr);
+        number = scan.nextInt();
+        for (int i = 0; i < size; i++) {
+            for (int g = 0; g < size; g++) {
+                StartMatrix[i][g] = scan.nextInt();
+            }
+        }
+        fr.close();
+        return StartMatrix;
+    }
+
+    static void PrintMatrix(int size, int [][] 	 StartMatrix)throws Exception {
+        for (int i = 0; i < size; i++) {
+            for (int g = 0; g < size; g++) {
+                System.out.print(StartMatrix[i][g] + " ");
+            }
+            System.out.println("");
+        }
+    }
+
+    static int[][] NewMatrix(int size, int [][] StartMatrix) throws Exception {
+        int MatrixValue;
+        MatrixValue = 1;
+        int count;
+        count = 0;
+        for (int i = count; i < size; i++) {
+            for (int g = count; g < size; g++) {
+                MatrixValue = StartMatrix[i][g];
+                StartMatrix[i][g] = StartMatrix[g][i];
+                StartMatrix[g][i] = MatrixValue;
+            }
+            count++;
+        }
+        return StartMatrix;
+    }
+
+    static String OutPutFile(){
+        String OutPutWay;
+        boolean IsCorrect;
+        do {
+            IsCorrect = true;
+            OutPutWay = scan.nextLine();
+            if (Files.exists(Path.of(OutPutWay)) == false) {
+                IsCorrect = false;
+                System.out.println("Не удалось найти файл по 						   этому пути.									   Повторите ввод.");
+            }
+            else {
+                try(FileReader fr = new 									FileReader(OutPutWay)){
+                    Scanner scan = new Scanner(fr);
+                    if (scan.hasNextLine() == true) {
+                        IsCorrect = false;
+                        System.out.println("Этот файл не 									пустой. Введите 								      новый путь к 									 файлу.");
+                    }else {
+                        System.out.println("Этот файл 										подойдёт.");
+                    }
+                }catch (IOException ex) {
+                    IsCorrect = false;
+                    System.out.println("Ошибка считывания из 						       файла введите путь к 							  новому.");
+                }
+            }
+        }while(IsCorrect == false);
+        return OutPutWay;
+    }
+
+    static void WriteInformationIntoFile(String OutPutWay, int size, int [][] ItIsNewMatrix) throws Exception {
+        FileWriter writer = new FileWriter(OutPutWay);
+        writer.write("Транспонированная матрица.\n");
+        for (int i = 0; i < size; i++) {
+            for (int g = 0; g < size; g++) {
+                writer.write(" " + ItIsNewMatrix[i][g]);
+            }
+            writer.write("\n");
+        }
+        System.out.println("Данные записаны в файл.");
+        writer.close();
+    }
+
+    static void MyTask () {
+        System.out.println("Дана квадратная матрица А 						      порядка n. Транспонировать данную 					 матрицу.");
+    }
+
+    static void WorkWithMatrix(int size, int [][] Matrix) 		   throws Exception {
+        String OutPutWay;
+        System.out.println("Начальная матрица.");
+        PrintMatrix(size, Matrix);
+        Matrix = NewMatrix( size, Matrix);
+        PrintMatrix(size, Matrix);
+        System.out.println("Транспонированная матрица");
+        System.out.println("Введите путь к файлу для записи 						 данных. Это должен быть пустой 						 файл.");
+        OutPutWay = OutPutFile();
+        WriteInformationIntoFile(OutPutWay, size, 			       Matrix);
+    }
+
+    static void Main () throws Exception {
+        String InPutWay;
+        int size, IOChoiсe;
+        int [][] Matrix;
+        MyTask();
+        IOChoiсe = ChoiceInput();
+        switch (IOChoiсe){
+            case 1:
+                size = ReturnMatrixSizeConsole();
+                Matrix = new int [size][size];
+                System.out.println("Введите элементы матрицы. 						   Это целые числа в  							   интервале[-30,30].");
+                Matrix = InputStartMatrixConsole(size);
+                WorkWithMatrix(size, Matrix);
+                break;
+            case 2:
+                System.out.println("Введите путь к файлу для 						   считывания размера и 							   элементов матрицы.");
+                InPutWay = FindInputFile();
+                size = InputAmount(InPutWay);
+                Matrix = new int [size][size];
+                Matrix = StartMatrix(size, InPutWay);
+                WorkWithMatrix(size, Matrix);
+                break;
+        }
+
+    }
+
+    public static void main(String[] args) throws Exception {
+        Main();
+    }
+}
